@@ -1208,6 +1208,7 @@ class Ticket {
             $msg = $this->replaceVars($msg->asArray(),
                             array(
                                 'recipient' => $user,
+                                'message'   => $message,
                                 'signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
 
             $options = array(

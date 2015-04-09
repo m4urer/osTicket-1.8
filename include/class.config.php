@@ -619,6 +619,10 @@ class OsticketConfig extends Config {
         return $this->get('reply_separator');
     }
 
+    function getHtmlBaseFileTemplate() {
+        return $this->get('html_base_file_template');
+    }
+
     function stripQuotedReply() {
         return ($this->get('strip_quoted_reply'));
     }
@@ -1008,6 +1012,7 @@ class OsticketConfig extends Config {
             'add_email_collabs'=>isset($vars['add_email_collabs'])?1:0,
             'reply_separator'=>$vars['reply_separator'],
             'email_attachments'=>isset($vars['email_attachments'])?1:0,
+            'html_base_file_template'=>$vars['html_base_file_template'],
          ));
     }
 

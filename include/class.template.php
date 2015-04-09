@@ -161,14 +161,60 @@ class EmailTemplateGroup {
         return static::$all_names[$name];
     }
 
+    function file2str($file_name)
+    {
+        // Check state of file and raise an error properly
+        if (!file_exists($file_name)) {
+            $err = PEAR::raiseError('File not found: ' . $file_name);
+            return $err;
+        }
+        if (!is_file($file_name)) {
+            $err = PEAR::raiseError('Not a regular file: ' . $file_name);
+            return $err;
+        }
+        if (!is_readable($file_name)) {
+            $err = PEAR::raiseError('File is not readable: ' . $file_name);
+            return $err;
+        }
+
+        // Temporarily reset magic_quotes_runtime and read file contents
+        if ($magic_quote_setting = get_magic_quotes_runtime()) {
+            @ini_set('magic_quotes_runtime', 0);
+        }
+        $cont = file_get_contents($file_name);
+        if ($magic_quote_setting) {
+            @ini_set('magic_quotes_runtime', $magic_quote_setting);
+        }
+
+        return $cont;
+    }
+
+    function mergeTemplateAndBody($body){
+	   global $cfg;
+
+	   //allow usage of a base html template from a file
+       if ($cfg && $cfg->getHtmlBaseFileTemplate() && file_exists($cfg->getHtmlBaseFileTemplate())){
+            $template = $this->file2str( $cfg->getHtmlBaseFileTemplate() );
+    	    if(isset($template)){	
+                return str_replace('%message%', $body, $template);
+    	    }
+        }
+        return $body;
+    }
+
+
     function getMsgTemplate($name) {
         global $ost;
+	
+        if ($tpl=EmailTemplate::lookupByName($this->getId(), $name, $this)){
+	    $tpl->setBody($this->mergeTemplateAndBody($tpl->getBody()));
+	    return $tpl;
+	}
 
-        if ($tpl=EmailTemplate::lookupByName($this->getId(), $name, $this))
-            return $tpl;
-
-        if ($tpl=EmailTemplate::fromInitialData($name, $this))
-            return $tpl;
+        if ($tpl=EmailTemplate::fromInitialData($name, $this)){
+	    $tpl->setBody($this->mergeTemplateAndBody($tpl->getBody()));
+	    return $tpl;
+	}
 
         $ost->logWarning(_S('Template Fetch Error'),
             sprintf(_S('Unable to fetch "%1$s" template - id #%d'), $name, $this->getId()));
@@ -430,6 +476,10 @@ class EmailTemplate {
         return $this->ht['body'];
     }
 
+    function setBody($content) {
+        $this->ht['body'] = $content;
+    }
+
     function getBodyWithImages() {
         return Format::viewableImages($this->getBody());
     }
@@ -563,3 +613,4 @@ class EmailTemplate {
     }
 }
 ?>
+

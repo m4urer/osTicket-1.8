@@ -111,6 +111,12 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             </td>
         </tr>
         <tr>
+            <td width="180"><?php echo __('HTML Base Email Template Path');?>:</td>
+            <td><input type="text" size="60" name="html_base_file_template" value="<?php echo $config['html_base_file_template']; ?>">
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['html_base_file_template']; ?></font>
+            </td>
+        </tr>
+        <tr>
             <td width="180"><?php echo __('Emailed Tickets Priority'); ?>:</td>
             <td>
                 <input type="checkbox" name="use_email_priority" value="1" <?php echo $config['use_email_priority'] ?'checked="checked"':''; ?>>
